@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego del Ahorcado - Web</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <header>
+            <h1>JUEGO DEL AHORCADO</h1>
+            <div class="game-controls">
+                <label for="categorySelect">Categoría:</label>
+                <select id="categorySelect">
+                    <option value="informatica">Informática</option>
+                    <option value="peliculas">Películas</option>
+                    <option value="animales">Animales</option>
+                </select>
+                <button id="restartBtn" class="btn-restart">Nueva Partida</button>
+            </div>
+        </header>
+
+        <main class="game-area">
+            <!-- Zona visual del Ahorcado -->
+            <div class="hangman-container">
+                <div class="hangman-drawing">
+                    <!-- Las partes se mostrarán con JS -->
+                    <div class="draw-part part-1"></div> <!-- Base -->
+                    <div class="draw-part part-2"></div> <!-- Mastil -->
+                    <div class="draw-part part-3"></div> <!-- Travesaño -->
+                    <div class="draw-part part-4"></div> <!-- Cuerda -->
+                    <div class="draw-part part-5"></div> <!-- Cabeza -->
+                    <div class="draw-part part-6"></div> <!-- Tronco -->
+                    <div class="draw-part part-7"></div> <!-- Brazo I -->
+                    <div class="draw-part part-8"></div> <!-- Brazo D -->
+                    <div class="draw-part part-9"></div> <!-- Pierna I -->
+                    <div class="draw-part part-10"></div> <!-- Pierna D -->
+                </div>
+            </div>
+
+            <!-- Zona de juego: Palabra y Estado -->
+            <div class="game-info">
+                <div class="status-bar">
+                    Vidas restantes: <span id="livesCount" class="lives-count">10</span>
+                </div>
+                <div id="wordDisplay" class="word-display">
+                    _ _ _ _ _
+                </div>
+                <div id="messageArea" class="message-area">
+                    <!-- Mensajes de victoria/derrota -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Teclado Virtual -->
+        <section id="keyboard" class="keyboard">
+            <!-- Se genera con JS -->
+        </section>
+    </div>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>
