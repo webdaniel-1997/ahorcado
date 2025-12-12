@@ -1,193 +1,259 @@
-/**
- * Lógica del Juego del Ahorcado (Versión Web)
- * Portado desde Java (JuegoAhorcado.java y DiccionarioSencillo.java)
- */
-
-// Diccionario de palabras por categorías
+﻿// Version web del Juego del Ahorcado basada en la logica de consola
 const diccionario = {
-    "informatica": [
+    basico: [
         "JAVA", "CODIGO", "TECLADO", "RATON", "PANTALLA",
-        "BUCLE", "CLASE", "OBJETO", "DATO", "RED",
-        "POLIMORFISMO", "HERENCIA", "ENCAPSULAMIENTO", "ABSTRACCION",
-        "INTERFACE", "EXCEPCION", "CONSTRUCTOR", "DESARROLLO", "ALGORITMO", "DEBUGGING"
+        "BUCLE", "CLASE", "OBJETO", "DATO", "RED"
     ],
-    "peliculas": [
-        "TITANIC", "AVATAR", "MATRIX", "GLADIAIATOR", "INTERSTELLAR",
-        "ORIGEN", "JOKER", "SHREK", "FROZEN", "COCO"
-    ],
-    "animales": [
-        "ELEFANTE", "JIRAFA", "LEON", "TIGRE", "GATO",
-        "PERRO", "AGUILA", "DELFIN", "BALLENA", "PINGUINO"
+    avanzado: [
+        "POLIMORFISMO", "HERENCIA", "ENCAPSULAMIENTO", "ABSTRACCION", "INTERFACE",
+        "EXCEPCION", "CONSTRUCTOR", "DESARROLLO", "ALGORITMO", "DEBUGGING"
     ]
 };
 
-// Estado del juego
-let gameState = {
+const VIDAS_INICIALES = 6;
+const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const estado = {
     palabraSecreta: "",
     letrasAdivinadas: [],
     letrasFalladas: [],
-    intentosRestantes: 10, // Coincide con las partes del dibujo CSS
-    categoria: "informatica",
+    intentosRestantes: VIDAS_INICIALES,
+    categoria: "basico",
     juegoTerminado: false
 };
 
-// Elementos del DOM
-const wordDisplay = document.getElementById('wordDisplay');
-const livesDisplay = document.getElementById('livesCount');
-const messageArea = document.getElementById('messageArea');
-const keyboard = document.getElementById('keyboard');
-const categorySelect = document.getElementById('categorySelect');
-const hangmanParts = document.querySelectorAll('.draw-part');
+const refs = {
+    palabraOculta: document.getElementById("palabraOculta"),
+    mensajeFinal: document.getElementById("mensajeFinal"),
+    intentosRestantes: document.getElementById("intentosRestantes"),
+    letrasFalladas: document.getElementById("letrasFalladas"),
+    teclado: document.getElementById("teclado"),
+    nivelSelect: document.getElementById("nivelSelect"),
+    nuevoBtn: document.getElementById("nuevoBtn"),
+    resolverInput: document.getElementById("resolverInput"),
+    resolverBtn: document.getElementById("resolverBtn"),
+    pistaBtn: document.getElementById("pistaBtn"),
+    partes: document.querySelectorAll(".parte")
+};
 
-/**
- * Inicializa el juego y la interfaz
- */
+function getRandomWord(nivel) {
+    const lista = diccionario[nivel] || diccionario.basico;
+    const indice = Math.floor(Math.random() * lista.length);
+    return lista[indice];
+}
+
 function initGame() {
-    // 1. Resetear estado
-    gameState.categoria = categorySelect.value;
-    const palabras = diccionario[gameState.categoria];
-    gameState.palabraSecreta = palabras[Math.floor(Math.random() * palabras.length)];
-    gameState.letrasAdivinadas = [];
-    gameState.letrasFalladas = [];
-    gameState.intentosRestantes = 10;
-    gameState.juegoTerminado = false;
+    estado.categoria = refs.nivelSelect.value;
+    estado.palabraSecreta = getRandomWord(estado.categoria);
+    estado.letrasAdivinadas = [];
+    estado.letrasFalladas = [];
+    estado.intentosRestantes = VIDAS_INICIALES;
+    estado.juegoTerminado = false;
 
-    console.log(`Juego iniciado. Categoría: ${gameState.categoria}, Palabra: ${gameState.palabraSecreta}`); // Debug
+    refs.resolverInput.value = "";
+    refs.resolverInput.disabled = false;
+    refs.resolverBtn.disabled = false;
+    refs.pistaBtn.disabled = false;
 
-    // 2. Resetear UI
-    messageArea.textContent = "";
-    messageArea.className = "message-area";
-
-    // Ocultar todas las partes del dibujo
-    hangmanParts.forEach(part => part.style.display = 'none');
-
+    setMensaje("");
     updateWordDisplay();
     updateLivesDisplay();
-    generateKeyboard();
+    actualizarFallos();
+    renderKeyboard();
+    actualizarDibujo();
 }
 
-/**
- * Genera los botones del teclado virtual
- */
-function generateKeyboard() {
-    keyboard.innerHTML = ''; // Limpiar teclado previo
-    const alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+function renderKeyboard() {
+    refs.teclado.innerHTML = "";
+    ALFABETO.split("").forEach(letra => {
+        const btn = document.createElement("button");
+        btn.className = "tecla";
+        btn.textContent = letra;
+        btn.dataset.letra = letra;
+        btn.addEventListener("click", () => handleLetterClick(letra));
+        refs.teclado.appendChild(btn);
+    });
+}
 
-    for (let char of alfabeto) {
-        const btn = document.createElement('button');
-        btn.textContent = char;
-        btn.className = 'key';
-        btn.onclick = () => handleLetterClick(char, btn);
-        keyboard.appendChild(btn);
+function handleLetterClick(letra) {
+    if (estado.juegoTerminado || estado.intentosRestantes <= 0) return;
+
+    const letraMayus = letra.toUpperCase();
+    if (estado.letrasAdivinadas.includes(letraMayus) || estado.letrasFalladas.includes(letraMayus)) {
+        return;
     }
-}
 
-/**
- * Maneja el clic en una letra
- */
-function handleLetterClick(letra, btnElement) {
-    if (gameState.juegoTerminado) return;
+    setMensaje("");
 
-    // Desactivar botón para que no se pueda pulsar de nuevo
-    btnElement.disabled = true;
-
-    if (gameState.palabraSecreta.includes(letra)) {
-        // Acierto
-        gameState.letrasAdivinadas.push(letra);
-        btnElement.classList.add('correct');
+    if (estado.palabraSecreta.includes(letraMayus)) {
+        estado.letrasAdivinadas.push(letraMayus);
+        marcarTecla(letraMayus, "acierto");
         updateWordDisplay();
+        updateKeyboardState();
         checkWin();
     } else {
-        // Fallo
-        gameState.letrasFalladas.push(letra);
-        gameState.intentosRestantes--;
-        btnElement.classList.add('wrong');
+        estado.letrasFalladas.push(letraMayus);
+        estado.intentosRestantes--;
+        marcarTecla(letraMayus, "fallo");
         updateLivesDisplay();
-        showNextHangmanPart();
+        actualizarFallos();
+        actualizarDibujo();
+        updateKeyboardState();
         checkLoss();
     }
 }
 
-/**
- * Actualiza la visualización de la palabra (letras encontradas y guiones)
- */
 function updateWordDisplay() {
-    const visualWord = gameState.palabraSecreta
-        .split('')
-        .map(char => gameState.letrasAdivinadas.includes(char) ? char : '_')
-        .join(' ');
-
-    wordDisplay.textContent = visualWord;
+    const letras = estado.palabraSecreta.split("").map(letra =>
+        estado.letrasAdivinadas.includes(letra) ? letra : "_"
+    );
+    refs.palabraOculta.textContent = letras.join(" ");
 }
 
-/**
- * Actualiza el contador de vidas
- */
 function updateLivesDisplay() {
-    livesDisplay.textContent = gameState.intentosRestantes;
+    refs.intentosRestantes.textContent = estado.intentosRestantes;
 }
 
-/**
- * Muestra la siguiente parte del dibujo del ahorcado
- * Basado en los fallos (10 intentos = 10 partes)
- */
-function showNextHangmanPart() {
-    const totalParts = 10;
-    const partIndex = totalParts - gameState.intentosRestantes; // 10 - 9 = 1 (primera parte)
-
-    // Buscar la parte correspondiente (clase .part-X)
-    const partToShow = document.querySelector(`.part-${partIndex}`);
-    if (partToShow) {
-        partToShow.style.display = 'block';
-    }
+function updateKeyboardState() {
+    const botones = refs.teclado.querySelectorAll("button");
+    botones.forEach(btn => {
+        const letra = btn.dataset.letra;
+        const usada = estado.letrasAdivinadas.includes(letra) || estado.letrasFalladas.includes(letra);
+        btn.disabled = estado.juegoTerminado || usada;
+    });
 }
 
-/**
- * Comprueba si el usuario ha ganado
- */
+function actualizarFallos() {
+    refs.letrasFalladas.textContent = estado.letrasFalladas.length ? estado.letrasFalladas.join(" ") : "-";
+}
+
+function actualizarDibujo() {
+    const errores = VIDAS_INICIALES - estado.intentosRestantes;
+    refs.partes.forEach((parte, indice) => {
+        if (indice < errores) {
+            parte.classList.add("visible");
+        } else {
+            parte.classList.remove("visible");
+        }
+    });
+}
+
 function checkWin() {
-    const isWin = gameState.palabraSecreta
-        .split('')
-        .every(char => gameState.letrasAdivinadas.includes(char));
-
-    if (isWin) {
+    const victoria = estado.palabraSecreta.split("").every(letra => estado.letrasAdivinadas.includes(letra));
+    if (victoria) {
         showEndMessage(true);
     }
 }
 
-/**
- * Comprueba si el usuario ha perdido
- */
 function checkLoss() {
-    if (gameState.intentosRestantes <= 0) {
+    if (estado.intentosRestantes <= 0) {
         showEndMessage(false);
-        // Revelar la palabra completa
-        wordDisplay.textContent = gameState.palabraSecreta.split('').join(' ');
     }
 }
 
-/**
- * Muestra mensaje de fin de partida y bloquea teclado
- */
 function showEndMessage(victoria) {
-    gameState.juegoTerminado = true;
-
-    // Desactivar todo el teclado
-    const keys = document.querySelectorAll('.key');
-    keys.forEach(k => k.disabled = true);
+    estado.juegoTerminado = true;
+    updateKeyboardState();
+    refs.resolverBtn.disabled = true;
+    refs.resolverInput.disabled = true;
+    refs.pistaBtn.disabled = true;
 
     if (victoria) {
-        messageArea.textContent = "¡FELICIDADES! HAS GANADO 🏆";
-        messageArea.classList.add('win-message');
+        setMensaje("Felicidades, has adivinado la palabra.", "exito");
     } else {
-        messageArea.textContent = "¡GAME OVER! Inténtalo de nuevo 💀";
-        messageArea.classList.add('lose-message');
+        setMensaje(`Has perdido. La palabra era ${estado.palabraSecreta}.`, "error");
+        refs.palabraOculta.textContent = estado.palabraSecreta.split("").join(" ");
     }
 }
 
-// Event Listeners
-document.getElementById('restartBtn').addEventListener('click', initGame);
-categorySelect.addEventListener('change', initGame);
+function setMensaje(texto, tipo = "info") {
+    refs.mensajeFinal.textContent = texto;
+    refs.mensajeFinal.className = texto ? `mensaje ${tipo}` : "mensaje";
+}
 
-// Iniciar juego al cargar
-window.onload = initGame;
+function marcarTecla(letra, clase) {
+    const btn = refs.teclado.querySelector(`button[data-letra="${letra}"]`);
+    if (btn) {
+        btn.classList.add(clase);
+    }
+}
+
+function pedirPista() {
+    if (estado.juegoTerminado) return;
+    if (estado.intentosRestantes <= 1) {
+        setMensaje("Necesitas al menos 2 vidas para pedir una pista.", "info");
+        return;
+    }
+
+    const pendientes = estado.palabraSecreta.split("").filter(letra => !estado.letrasAdivinadas.includes(letra));
+    if (!pendientes.length) {
+        setMensaje("Ya has descubierto todas las letras.", "info");
+        return;
+    }
+
+    const letraPista = pendientes[0];
+    estado.letrasAdivinadas.push(letraPista);
+    estado.intentosRestantes--;
+    marcarTecla(letraPista, "acierto");
+
+    updateWordDisplay();
+    updateLivesDisplay();
+    actualizarDibujo();
+    updateKeyboardState();
+    setMensaje(`Pista usada: se revela la letra ${letraPista}.`, "info");
+
+    checkWin();
+    checkLoss();
+}
+
+function resolverIntento() {
+    if (estado.juegoTerminado) return;
+
+    const intento = refs.resolverInput.value.trim().toUpperCase();
+    if (!intento) {
+        setMensaje("Escribe una palabra antes de resolver.", "info");
+        return;
+    }
+
+    if (intento === estado.palabraSecreta) {
+        estado.letrasAdivinadas = Array.from(new Set(estado.palabraSecreta.split("")));
+        showEndMessage(true);
+    } else {
+        estado.intentosRestantes--;
+        updateLivesDisplay();
+        actualizarDibujo();
+        setMensaje("Palabra incorrecta (-1 vida).", "info");
+        checkLoss();
+    }
+}
+
+function manejarTecladoFisico(event) {
+    if (estado.juegoTerminado) return;
+
+    if (event.key === "Enter" && document.activeElement === refs.resolverInput) {
+        resolverIntento();
+        return;
+    }
+
+    if (document.activeElement === refs.resolverInput) {
+        return;
+    }
+
+    const letra = event.key ? event.key.toUpperCase() : "";
+    if (ALFABETO.includes(letra)) {
+        handleLetterClick(letra);
+    }
+}
+
+refs.nuevoBtn.addEventListener("click", initGame);
+refs.nivelSelect.addEventListener("change", initGame);
+refs.pistaBtn.addEventListener("click", pedirPista);
+refs.resolverBtn.addEventListener("click", resolverIntento);
+refs.resolverInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+        resolverIntento();
+    }
+});
+
+document.addEventListener("keydown", manejarTecladoFisico);
+window.addEventListener("DOMContentLoaded", initGame);

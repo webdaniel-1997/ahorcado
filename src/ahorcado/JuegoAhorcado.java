@@ -132,6 +132,8 @@ public class JuegoAhorcado {
 
     public String getLetrasFalladas() { return letrasFalladas; }
 
+    public String getLetrasAcertadas() { return letrasAcertadas; }
+
     public EstadoPartida getEstado() { return estado; }
 
     public String getPalabraSecreta() { return palabraSecreta; }

@@ -1,4 +1,15 @@
-/* Reseteo básico */
+﻿:root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --accent: #3056d3;
+    --accent-2: #1f2c60;
+    --success: #2f9e44;
+    --danger: #d64545;
+    --text: #1f2933;
+    --muted: #627085;
+    --shadow: 0 10px 40px rgba(23, 43, 99, 0.08);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,182 +17,301 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at 10% 20%, #e3e9ff 0, #f6f8ff 45%, #f9fbff 80%);
+    color: var(--text);
     min-height: 100vh;
 }
 
-.main-container {
-    width: 90%;
-    max-width: 900px;
-    background-color: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+.page {
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 24px 20px 40px;
+}
+
+.hero {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.titles h1 {
+    font-size: 2rem;
+    letter-spacing: 0.5px;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.lead {
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.control-group select {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #d6d9e7;
+    background: #f7f8ff;
+    color: var(--text);
+    min-width: 180px;
+}
+
+.tablero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.panel {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.panel-palabra {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-}
-
-header {
-    text-align: center;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 1rem;
-}
-
-h1 {
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-}
-
-.game-controls {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    align-items: center;
-}
-
-select {
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-/* Área de juego principal */
-.game-area {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
+    gap: 16px;
     justify-content: center;
 }
 
-/* Dibujo del ahorcado (CSS Puro) */
-.hangman-drawing {
-    width: 200px;
-    height: 250px;
-    background-color: #fafafa;
-    border: 2px dashed #ddd;
-    border-radius: 8px;
+.horca {
     position: relative;
+    width: 260px;
+    height: 260px;
     margin: 0 auto;
 }
 
-/* Partes del ahorcado */
-.draw-part {
+.estructura {
     position: absolute;
-    background-color: #333;
-    display: none; /* Se muestran con JS */
+    background: linear-gradient(135deg, #c6cbe9, #dde1f9);
 }
 
-.base { bottom: 10px; left: 20px; width: 160px; height: 10px; display: block; }
-.mastil { bottom: 20px; left: 40px; width: 10px; height: 220px; } /* Pista: siempre visible para dar contexto o no? Mejor oculto y mostrar poco a poco si son VIDAS */
-/* Vamos a hacer que la base y mastil se vean siempre si queremos, o sean parte de los fallos. 
-   Asumiremos que los fallos van añadiendo partes. 
-   Orden típico (10 intentos): Base, Mastil, Travesaño, Cuerda, Cabeza, Tronco, PIzan, PDer, BIzq, BDer
-*/
+.base { bottom: 8px; left: 18px; width: 180px; height: 12px; border-radius: 6px; }
+.poste { bottom: 20px; left: 52px; width: 12px; height: 210px; border-radius: 8px; }
+.barra { top: 22px; left: 52px; width: 130px; height: 10px; border-radius: 6px; }
+.soporte { top: 60px; left: 82px; width: 60px; height: 8px; transform: rotate(-45deg); border-radius: 6px; }
+.soga { top: 30px; left: 174px; width: 4px; height: 40px; background: #b59f7d; }
 
-/* Redefinimos para 10 partes */
-.part-1 { bottom: 10px; left: 20px; width: 160px; height: 10px; } /* Base */
-.part-2 { bottom: 20px; left: 50px; width: 10px; height: 220px; } /* Mastil */
-.part-3 { top: 20px; left: 50px; width: 100px; height: 10px; } /* Travesaño */
-.part-4 { top: 20px; left: 140px; width: 5px; height: 40px; } /* Cuerda */
-.part-5 { top: 60px; left: 122px; width: 40px; height: 40px; border-radius: 50%; border: 4px solid #333; background: transparent; } /* Cabeza */
-.part-6 { top: 100px; left: 140px; width: 5px; height: 80px; } /* Tronco */
-.part-7 { top: 110px; left: 140px; width: 5px; height: 60px; transform: rotate(45deg); transform-origin: top; } /* Brazo Izq */
-.part-8 { top: 110px; left: 140px; width: 5px; height: 60px; transform: rotate(-45deg); transform-origin: top; } /* Brazo Der */
-.part-9 { top: 175px; left: 140px; width: 5px; height: 60px; transform: rotate(25deg); transform-origin: top; } /* Pierna Izq */
-.part-10 { top: 175px; left: 140px; width: 5px; height: 60px; transform: rotate(-25deg); transform-origin: top; } /* Pierna Der */
+.parte {
+    position: absolute;
+    display: none;
+    background: var(--text);
+}
 
+.parte-1 { /* cabeza */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 4px solid var(--text);
+    background: transparent;
+    left: 152px;
+    top: 64px;
+}
 
-.word-display {
+.parte-2 { /* torso */
+    width: 6px;
+    height: 70px;
+    left: 176px;
+    top: 118px;
+}
+
+.parte-3 { /* brazo izquierdo */
+    width: 6px;
+    height: 50px;
+    left: 176px;
+    top: 130px;
+    transform-origin: top;
+    transform: rotate(-40deg);
+}
+
+.parte-4 { /* brazo derecho */
+    width: 6px;
+    height: 50px;
+    left: 176px;
+    top: 130px;
+    transform-origin: top;
+    transform: rotate(40deg);
+}
+
+.parte-5 { /* pierna izquierda */
+    width: 6px;
+    height: 55px;
+    left: 176px;
+    top: 185px;
+    transform-origin: top;
+    transform: rotate(-20deg);
+}
+
+.parte-6 { /* pierna derecha */
+    width: 6px;
+    height: 55px;
+    left: 176px;
+    top: 185px;
+    transform-origin: top;
+    transform: rotate(20deg);
+}
+
+.parte.visible {
+    display: block;
+}
+
+.resumen {
+    margin-top: 12px;
     text-align: center;
-    font-size: 2.5rem;
-    letter-spacing: 0.5rem;
-    font-weight: bold;
-    min-height: 60px;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-.status-bar {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #666;
-}
-
-.lives-count {
-    color: #e74c3c;
-    font-weight: bold;
-}
-
-/* Teclado Virtual */
-.keyboard {
+    color: var(--muted);
+    font-weight: 600;
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 0.5rem;
-    max-width: 700px;
-    margin: 0 auto;
+    gap: 16px;
 }
 
-.key {
-    width: 45px;
-    height: 45px;
-    border: none;
-    border-radius: 6px;
-    background-color: #3498db;
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.key:hover:not([disabled]) {
-    background-color: #2980b9;
-    transform: translateY(-2px);
-}
-
-.key:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.key.correct {
-    background-color: #27ae60;
-}
-
-.key.wrong {
-    background-color: #c0392b;
-}
-
-/* Mensajes Finales */
-.message-area {
+.palabra-oculta {
+    font-size: 2.2rem;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.6rem;
     text-align: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    min-height: 40px;
+    color: var(--text);
+    min-height: 56px;
 }
 
-.win-message { color: #27ae60; }
-.lose-message { color: #c0392b; }
-
-.btn-restart {
-    background-color: #2c3e50;
-    color: white;
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 6px;
+.mensaje {
+    text-align: center;
     font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
+    font-weight: 700;
+    min-height: 28px;
+    color: var(--muted);
 }
 
-.btn-restart:hover {
-    background-color: #34495e;
+.mensaje.exito { color: var(--success); }
+.mensaje.error { color: var(--danger); }
+.mensaje.info { color: var(--muted); }
+
+.acciones {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.resolver {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    min-width: 260px;
+}
+
+.resolver input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #d6d9e7;
+    background: #fafbff;
+}
+
+.panel-teclado {
+    margin-top: 12px;
+}
+
+.panel-subtitulo {
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.teclado {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+    gap: 10px;
+}
+
+.tecla {
+    padding: 12px 0;
+    border-radius: 10px;
+    border: 1px solid #d6d9e7;
+    background: #eef2ff;
+    color: var(--text);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+}
+
+.tecla:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.tecla:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.tecla.acierto {
+    background: #d6f5e3;
+    border-color: #a9e4c2;
+    color: var(--success);
+}
+
+.tecla.fallo {
+    background: #ffe2df;
+    border-color: #f1b4ab;
+    color: var(--danger);
+}
+
+.btn {
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    box-shadow: 0 8px 25px rgba(48, 86, 211, 0.25);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+}
+
+.btn:hover:enabled {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(48, 86, 211, 0.25);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn.primario { background: var(--accent); }
+.btn.secundario { background: var(--accent-2); }
+
+@media (max-width: 768px) {
+    .palabra-oculta {
+        font-size: 1.7rem;
+        letter-spacing: 0.4rem;
+    }
+
+    .resolver {
+        min-width: 100%;
+    }
 }

@@ -1,62 +1,67 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego del Ahorcado - Web</title>
+    <title>Juego del Ahorcado</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
-
-    <div class="main-container">
-        <header>
-            <h1>JUEGO DEL AHORCADO</h1>
-            <div class="game-controls">
-                <label for="categorySelect">Categoría:</label>
-                <select id="categorySelect">
-                    <option value="informatica">Informática</option>
-                    <option value="peliculas">Películas</option>
-                    <option value="animales">Animales</option>
+    <div class="page">
+        <header class="hero">
+            <div class="titles">
+                <p class="eyebrow">Version web inspirada en la consola</p>
+                <h1>Juego del Ahorcado</h1>
+                <p class="lead">Adivina la palabra antes de quedarte sin vidas.</p>
+            </div>
+            <div class="control-group">
+                <label for="nivelSelect">Dificultad</label>
+                <select id="nivelSelect">
+                    <option value="basico">Basico (nivel 1)</option>
+                    <option value="avanzado">Avanzado (nivel 2)</option>
                 </select>
-                <button id="restartBtn" class="btn-restart">Nueva Partida</button>
+                <button id="nuevoBtn" class="btn primario">Nueva partida</button>
             </div>
         </header>
 
-        <main class="game-area">
-            <!-- Zona visual del Ahorcado -->
-            <div class="hangman-container">
-                <div class="hangman-drawing">
-                    <!-- Las partes se mostrarán con JS -->
-                    <div class="draw-part part-1"></div> <!-- Base -->
-                    <div class="draw-part part-2"></div> <!-- Mastil -->
-                    <div class="draw-part part-3"></div> <!-- Travesaño -->
-                    <div class="draw-part part-4"></div> <!-- Cuerda -->
-                    <div class="draw-part part-5"></div> <!-- Cabeza -->
-                    <div class="draw-part part-6"></div> <!-- Tronco -->
-                    <div class="draw-part part-7"></div> <!-- Brazo I -->
-                    <div class="draw-part part-8"></div> <!-- Brazo D -->
-                    <div class="draw-part part-9"></div> <!-- Pierna I -->
-                    <div class="draw-part part-10"></div> <!-- Pierna D -->
-                </div>
-            </div>
+        <main class="tablero">
+            <section class="panel panel-dibujo">
+                <div class="horca">
+                    <div class="estructura base"></div>
+                    <div class="estructura poste"></div>
+                    <div class="estructura barra"></div>
+                    <div class="estructura soporte"></div>
+                    <div class="estructura soga"></div>
 
-            <!-- Zona de juego: Palabra y Estado -->
-            <div class="game-info">
-                <div class="status-bar">
-                    Vidas restantes: <span id="livesCount" class="lives-count">10</span>
+                    <div class="parte parte-1"></div>
+                    <div class="parte parte-2"></div>
+                    <div class="parte parte-3"></div>
+                    <div class="parte parte-4"></div>
+                    <div class="parte parte-5"></div>
+                    <div class="parte parte-6"></div>
                 </div>
-                <div id="wordDisplay" class="word-display">
-                    _ _ _ _ _
+                <div class="resumen">
+                    <div class="dato">Vidas restantes: <span id="intentosRestantes">6</span></div>
+                    <div class="dato">Fallos: <span id="letrasFalladas">-</span></div>
                 </div>
-                <div id="messageArea" class="message-area">
-                    <!-- Mensajes de victoria/derrota -->
+            </section>
+
+            <section class="panel panel-palabra">
+                <div id="palabraOculta" class="palabra-oculta">_ _ _ _</div>
+                <div id="mensajeFinal" class="mensaje"></div>
+                <div class="acciones">
+                    <button id="pistaBtn" class="btn secundario">Pedir pista (-1 vida)</button>
+                    <div class="resolver">
+                        <input id="resolverInput" type="text" autocomplete="off" placeholder="Resolver palabra completa">
+                        <button id="resolverBtn" class="btn">Resolver</button>
+                    </div>
                 </div>
-            </div>
+            </section>
         </main>
 
-        <!-- Teclado Virtual -->
-        <section id="keyboard" class="keyboard">
-            <!-- Se genera con JS -->
+        <section class="panel panel-teclado">
+            <p class="panel-subtitulo">Pulsa sobre las letras o usa tu teclado.</p>
+            <div id="teclado" class="teclado"></div>
         </section>
     </div>
 

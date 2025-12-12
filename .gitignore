@@ -1,7 +1,8 @@
-# Compilados de Java
+﻿# Compilados de Java
 *.class
 out/
 bin/
+target/
 
 # IDEs
 .idea/

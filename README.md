@@ -1,54 +1,33 @@
-# Juego del Ahorcado – Versión Web y Consola
+﻿# Juego del Ahorcado - Consola (Java) y Version Web
 
-Este proyecto contiene dos versiones del clásico juego del Ahorcado:
-1. **Versión Java (Consola)**: La implementación original orientada a backend.
-2. **Versión Web (HTML/CSS/JS)**: Una implementación visual moderna lista para desplegar.
+Proyecto con dos formas de jugar: la version de consola escrita en Java y una version web lista para publicar con GitHub Pages.
 
-## Descripción
-El objetivo es adivinar la palabra secreta antes de que se complete el dibujo del ahorcado. Cuentas con **10 intentos**. Puedes elegir entre categorías como *Informática*, *Películas* o *Animales*.
+## Descripcion
+Adivina la palabra secreta antes de quedarte sin vidas. Las palabras proceden del mismo diccionario usado en la practica Java, con un nivel basico y otro avanzado.
 
-## Tecnologías Utilizadas
-*   **Java**: Lógica de backend (en `src/`).
-*   **HTML5**: Estructura semántica.
-*   **CSS3**: Diseño visual, Flexbox y animaciones.
-*   **JavaScript (ES6+)**: Lógica del juego y manipulación del DOM.
+## Estructura
+- src/ahorcado/ : codigo fuente Java de la version consola
+- docs/index.html : pagina principal de la version web
+- docs/css/styles.css : estilos del juego web
+- docs/js/script.js : logica del juego web
+- README.md
+- .gitignore
 
-## Estructura del Proyecto
-```
-JuegoAhorcado/
-├── src/                # Código fuente Java
-├── docs/               # Versión Web (GitHub Pages)
-│   ├── css/styles.css  # Estilos
-│   ├── js/script.js    # Lógica JS
-│   └── index.html      # Página principal
-├── .gitignore          # Archivos ignorados por Git
-└── README.md           # Documentación
-```
+## Version consola (Java)
+1. Abre una terminal en la carpeta del proyecto.
+2. Compila: `cd src` y `javac ahorcado\*.java`
+3. Ejecuta: `java ahorcado.Main`
+4. Sigue las instrucciones en la consola para elegir dificultad o jugar en modo dos jugadores.
 
-## Instrucciones de Ejecución
+## Version web (GitHub Pages)
+- Los archivos estan en `docs/`.
+- Puedes abrir `docs/index.html` directamente en el navegador para jugar sin instalar nada.
+- Para publicar en GitHub Pages:
+  1. Sube este repositorio a GitHub.
+  2. En el repositorio, entra en Settings > Pages.
+  3. En Source, selecciona la rama `main` y la carpeta `/docs`.
+  4. Guarda los cambios y espera a que GitHub genere la URL publica.
 
-### 1. Versión Java (Consola)
-Para ejecutar la versión original en tu IDE (IntelliJ, Eclipse, VS Code):
-*   Abre el proyecto.
-*   Ejecuta el archivo `src/ahorcado/Main.java`.
-*   Sigue las instrucciones en la consola.
-
-### 2. Versión Web (Local)
-Para jugar en tu ordenador sin internet:
-*   Ve a la carpeta `docs/`.
-*   Haz doble clic en `index.html`.
-*   ¡Disfruta!
-
----
-
-## Despliegue en GitHub Pages
-
-Para ver este juego online y compartirlo:
-
-1.  **Sube este repositorio a GitHub**.
-2.  Ve a la pestaña **Settings** (Configuración) de tu repositorio.
-3.  En el menú lateral, busca la sección **Pages**.
-4.  En **Source**, selecciona `Deploy from a branch`.
-5.  En **Branch**, selecciona `main` (o master) y la carpeta `/docs` (¡Importante! Seleccionar /docs, no /root).
-6.  Haz clic en **Save**.
-7.  En unos instantes, GitHub te dará una URL (ej: `https://tu-usuario.github.io/tu-repo/`) donde el juego estará funcionando.
+## Notas
+- La version web usa 6 vidas, igual que la version de consola.
+- Las palabras de cada nivel son las mismas que en `DiccionarioSencillo.java`.
