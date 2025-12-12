@@ -1,51 +1,37 @@
-﻿// Manejo del DOM y renderizado de la interfaz
-import { obtenerPalabraVisible, progresoVidas, tiempoRestanteTexto } from "./gameEngine.js";
+﻿import { obtenerPalabraVisible, progresoVidas, tiempoRestanteTexto, partesDisponibles, calcularErrores } from "./gameEngine.js";
+import { listadoLogros } from "./achievements.js";
 
 const refs = {};
 let callbacks = {};
-let tecladoLetras = [];
+let letrasTeclado = [];
+let ultimoErrores = 0;
 
-export function initUI(on, ajustes) {
+export function initUI(on, ajustes, tema, dailyData, logrosGuardados) {
     callbacks = on;
     capturarRefs();
     prepararTeclado();
     vincularEventos();
+    aplicarTema(tema || "oscuro");
     hidratarAjustes(ajustes);
+    actualizarDailyInfo(dailyData);
+    renderLogros(logrosGuardados || {});
 }
 
 function capturarRefs() {
-    refs.btnNueva = document.getElementById("btnNueva");
-    refs.btnResetStats = document.getElementById("btnResetStats");
-    refs.btnPista = document.getElementById("btnPista");
-    refs.btnResolver = document.getElementById("btnResolver");
-    refs.modoSelect = document.getElementById("modoSelect");
-    refs.categoriaSelect = document.getElementById("categoriaSelect");
-    refs.dificultadSelect = document.getElementById("dificultadSelect");
-    refs.tiempoInput = document.getElementById("tiempoInput");
-    refs.campoTiempo = document.getElementById("campoTiempo");
-    refs.palabraInput = document.getElementById("palabraInput");
-    refs.campoPalabra = document.getElementById("campoPalabra");
-    refs.palabraOculta = document.getElementById("palabraOculta");
-    refs.mensajePrincipal = document.getElementById("mensajePrincipal");
-    refs.estadoPartida = document.getElementById("estadoPartida");
-    refs.teclado = document.getElementById("teclado");
-    refs.vidasTexto = document.getElementById("vidasTexto");
-    refs.barraVidas = document.getElementById("barraVidas");
-    refs.tiempoTexto = document.getElementById("tiempoTexto");
-    refs.barraTiempo = document.getElementById("barraTiempo");
-    refs.bloqueTiempo = document.getElementById("bloqueTiempo");
-    refs.resolverInput = document.getElementById("resolverInput");
-    refs.ariaEstado = document.getElementById("ariaEstado");
-    refs.statPartidas = document.getElementById("statPartidas");
-    refs.statVictorias = document.getElementById("statVictorias");
-    refs.statDerrotas = document.getElementById("statDerrotas");
-    refs.statMejorTiempo = document.getElementById("statMejorTiempo");
-    refs.statModos = document.getElementById("statModos");
+    const ids = [
+        "btnNueva", "btnResetStats", "btnPista", "btnResolver", "btnTema",
+        "modoSelect", "categoriaSelect", "dificultadSelect", "tiempoInput", "palabraInput",
+        "campoTiempo", "campoPalabra", "palabraOculta", "mensajePrincipal", "estadoPartida",
+        "teclado", "vidasTexto", "barraVidas", "tiempoTexto", "barraTiempo", "bloqueTiempo",
+        "resolverInput", "ariaEstado", "statPartidas", "statVictorias", "statDerrotas", "statMejorTiempo", "statMejorRacha",
+        "statModos", "listaLogros", "historialCuerpo", "infoDiaria", "svgWrapper"
+    ];
+    ids.forEach(id => refs[id] = document.getElementById(id));
 }
 
 function prepararTeclado() {
     const letras = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
-    tecladoLetras = letras;
+    letrasTeclado = letras;
     refs.teclado.innerHTML = "";
     letras.forEach(letra => {
         const btn = document.createElement("button");
@@ -62,9 +48,9 @@ function vincularEventos() {
     refs.btnNueva?.addEventListener("click", () => callbacks.onNuevaPartida?.());
     refs.btnResetStats?.addEventListener("click", () => callbacks.onResetStats?.());
     refs.btnPista?.addEventListener("click", () => callbacks.onPista?.());
-    refs.btnResolver?.addEventListener("click", () => {
-        callbacks.onResolver?.(refs.resolverInput.value);
-    });
+    refs.btnResolver?.addEventListener("click", () => callbacks.onResolver?.(refs.resolverInput.value));
+    refs.btnTema?.addEventListener("click", () => callbacks.onToggleTema?.());
+
     refs.resolverInput?.addEventListener("keydown", ev => {
         if (ev.key === "Enter") {
             callbacks.onResolver?.(refs.resolverInput.value);
@@ -76,7 +62,7 @@ function vincularEventos() {
         if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
         if (document.activeElement === refs.resolverInput) return;
         const letra = (ev.key || "").toUpperCase();
-        if (tecladoLetras.includes(letra)) {
+        if (letrasTeclado.includes(letra)) {
             callbacks.onLetra?.(letra);
         }
     });
@@ -111,13 +97,15 @@ export function limpiarResolver() {
     if (refs.resolverInput) refs.resolverInput.value = "";
 }
 
-export function actualizarUI(state) {
+export function renderEstado(state) {
     if (!state) return;
     refs.palabraOculta.textContent = obtenerPalabraVisible(state);
     refs.vidasTexto.textContent = `${state.intentosRestantes}/${state.vidasIniciales}`;
     refs.barraVidas.style.width = `${progresoVidas(state)}%`;
     refs.estadoPartida.textContent = traducirEstado(state.estado);
-    refs.teclado.querySelectorAll(".tecla").forEach(btn => {
+
+    const botones = refs.teclado.querySelectorAll(".tecla");
+    botones.forEach(btn => {
         const letra = btn.dataset.letra;
         const usada = state.letrasAdivinadas.includes(letra) || state.letrasFalladas.includes(letra);
         btn.disabled = state.estado !== "en_curso" || usada;
@@ -133,15 +121,16 @@ export function actualizarUI(state) {
     }
 
     alternarMensaje(state);
-    actualizarPartesAhorcado(state);
+    actualizarPartes(state);
     anunciarEstado(state);
+    ultimoErrores = calcularErrores(state);
 }
 
 function alternarMensaje(state) {
     const mensaje = refs.mensajePrincipal;
     mensaje.className = "mensaje";
     if (state.estado === "victoria") {
-        mensaje.textContent = "¡Has ganado!";
+        mensaje.textContent = "Has ganado";
         mensaje.classList.add("exito");
     } else if (state.estado === "derrota") {
         mensaje.textContent = "Has perdido. La palabra era " + state.palabraSecreta + ".";
@@ -152,28 +141,20 @@ function alternarMensaje(state) {
     }
 }
 
-function actualizarPartesAhorcado(state) {
-    const partes = Array.from(document.querySelectorAll(".parte"));
-    const errores = state.vidasIniciales - state.intentosRestantes;
+function actualizarPartes(state) {
+    const totalPartes = partesDisponibles(state);
+    const errores = calcularErrores(state);
+    const partes = ["parte-1","parte-2","parte-3","parte-4","parte-5","parte-6"]
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
     partes.forEach((parte, idx) => {
-        parte.classList.toggle("visible", idx < errores);
+        const visible = idx < Math.min(partes.length, errores);
+        parte.classList.toggle("visible", visible);
     });
-}
-
-export function actualizarEstadisticas(stats) {
-    if (!stats) return;
-    refs.statPartidas.textContent = stats.partidas;
-    refs.statVictorias.textContent = stats.victorias;
-    refs.statDerrotas.textContent = stats.derrotas;
-    refs.statMejorTiempo.textContent = stats.mejorTiempoContrarrelojMs == null
-        ? "--"
-        : formatearTiempo(stats.mejorTiempoContrarrelojMs);
-
-    const modos = stats.modos || {};
-    const chips = Object.entries(modos).map(([modo, data]) => {
-        return `<span class="etiqueta">${traducirModo(modo)}: ${data.victorias || 0} / ${data.partidas || 0}</span>`;
-    });
-    refs.statModos.innerHTML = chips.join(" ");
+    if (refs.svgWrapper && errores > ultimoErrores) {
+        refs.svgWrapper.classList.add("shake-once");
+        setTimeout(() => refs.svgWrapper.classList.remove("shake-once"), 400);
+    }
 }
 
 function traducirEstado(estado) {
@@ -182,21 +163,6 @@ function traducirEstado(estado) {
         case "derrota": return "Derrota";
         default: return "En curso";
     }
-}
-
-function traducirModo(modo) {
-    switch (modo) {
-        case "contrarreloj": return "Contrarreloj";
-        case "dos_jugadores": return "Dos jugadores";
-        default: return "Clásico";
-    }
-}
-
-function formatearTiempo(ms) {
-    const segundos = Math.round(ms / 1000);
-    const m = Math.floor(segundos / 60).toString().padStart(2, "0");
-    const s = (segundos % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
 }
 
 function anunciarEstado(state) {
@@ -210,13 +176,70 @@ function anunciarEstado(state) {
     }
 }
 
-export function limpiarCamposParaJuego() {
-    refs.palabraInput.value = "";
-    limpiarResolver();
-    refs.teclado.querySelectorAll(".tecla").forEach(btn => {
-        btn.disabled = false;
-        btn.classList.remove("acierto", "fallo");
+export function renderEstadisticas(stats) {
+    if (!stats) return;
+    refs.statPartidas.textContent = stats.partidas;
+    refs.statVictorias.textContent = stats.victorias;
+    refs.statDerrotas.textContent = stats.derrotas;
+    refs.statMejorTiempo.textContent = stats.mejorTiempoMs == null ? "--" : formatearTiempo(stats.mejorTiempoMs);
+    refs.statMejorRacha.textContent = stats.mejorRachaDiaria || 0;
+
+    const modos = stats.modos || {};
+    const chips = Object.entries(modos).map(([modo, data]) => {
+        return `<span class="etiqueta">${traducirModo(modo)}: ${data.victorias || 0} / ${data.partidas || 0}</span>`;
     });
+    refs.statModos.innerHTML = chips.join(" ");
+    renderHistorial(stats.historial || []);
+}
+
+export function renderHistorial(historial) {
+    if (!refs.historialCuerpo) return;
+    if (!historial.length) {
+        refs.historialCuerpo.innerHTML = `<tr><td colspan="6">Sin partidas registradas</td></tr>`;
+        return;
+    }
+    const filas = historial.slice().reverse().map(item => {
+        const fecha = (item.fecha || "").replace("T", " ").slice(0,16);
+        const tiempo = item.tiempoMs != null ? formatearTiempo(item.tiempoMs) : "--";
+        const badge = item.palabraDiaria ? "<span class=\"etiqueta\">Dia</span>" : "";
+        return `<tr><td>${fecha}</td><td>${traducirModo(item.modo)} ${badge}</td><td>${item.categoria}</td><td>${item.dificultad}</td><td>${item.resultado}</td><td>${tiempo}</td></tr>`;
+    });
+    refs.historialCuerpo.innerHTML = filas.join("");
+}
+
+export function renderLogros(logros) {
+    if (!refs.listaLogros) return;
+    const defs = listadoLogros();
+    const html = defs.map(def => {
+        const estado = logros?.[def.id]?.desbloqueado;
+        return `<div class="logro ${estado ? "desbloqueado" : "pendiente"}">
+            <div class="icono">${estado ? "★" : "☆"}</div>
+            <div class="texto">
+                <p class="titulo">${def.titulo}</p>
+                <p class="desc">${def.descripcion}</p>
+            </div>
+        </div>`;
+    }).join("");
+    refs.listaLogros.innerHTML = html;
+}
+
+export function actualizarDailyInfo(dailyData) {
+    if (!refs.infoDiaria) return;
+    if (!dailyData) {
+        refs.infoDiaria.textContent = "Racha diaria: --";
+        return;
+    }
+    const fecha = dailyData.ultimaFecha ? `Ultima: ${dailyData.ultimaFecha}` : "";
+    refs.infoDiaria.textContent = `Racha diaria: ${dailyData.racha || 0} ${fecha}`;
+}
+
+export function aplicarTema(tema) {
+    const body = document.body;
+    body.classList.remove("theme-dark", "theme-light");
+    body.classList.add(tema === "claro" ? "theme-light" : "theme-dark");
+    if (refs.btnTema) {
+        refs.btnTema.textContent = `Tema: ${tema === "claro" ? "Claro" : "Oscuro"}`;
+    }
 }
 
 export function desactivarAccionesFin() {
@@ -228,9 +251,28 @@ export function desactivarAccionesFin() {
 export function reactivarAcciones() {
     refs.btnPista.disabled = false;
     refs.btnResolver.disabled = false;
-    refs.teclado.querySelectorAll(".tecla").forEach(btn => btn.disabled = false);
+    refs.teclado.querySelectorAll(".tecla").forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove("acierto", "fallo");
+    });
 }
 
-export function notificarResultado(mensaje) {
-    refs.mensajePrincipal.textContent = mensaje;
+export function setMensaje(texto) {
+    refs.mensajePrincipal.textContent = texto;
+}
+
+function formatearTiempo(ms) {
+    const segundos = Math.max(0, Math.round(ms / 1000));
+    const m = Math.floor(segundos / 60).toString().padStart(2, "0");
+    const s = (segundos % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+}
+
+function traducirModo(modo) {
+    switch (modo) {
+        case "contrarreloj": return "Contrarreloj";
+        case "dos_jugadores": return "Dos jugadores";
+        case "palabra_dia": return "Palabra del dia";
+        default: return "Clasico";
+    }
 }

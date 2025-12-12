@@ -6,17 +6,18 @@
     <title>Juego del Ahorcado</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body>
+<body class="theme-dark">
     <div class="app">
         <header class="header">
             <div class="branding">
-                <p class="eyebrow">Versión web inspirada en la consola Java</p>
+                <p class="eyebrow">Version web avanzada inspirada en la consola Java</p>
                 <h1>Juego del Ahorcado</h1>
-                <p class="subtitle">Modos clásico, contrarreloj y dos jugadores. Escoge tu categoría y dificultad.</p>
+                <p class="subtitle">Modos clasico, contrarreloj, dos jugadores y palabra del dia. Categorias y dificultades configurables.</p>
             </div>
             <div class="header-actions">
+                <button id="btnTema" class="btn fantasma" aria-label="Cambiar tema">Tema: Oscuro</button>
                 <button id="btnNueva" class="btn primario">Nueva partida</button>
-                <button id="btnResetStats" class="btn fantasma">Reiniciar estadísticas</button>
+                <button id="btnResetStats" class="btn fantasma">Reiniciar estadisticas y logros</button>
             </div>
         </header>
 
@@ -25,26 +26,27 @@
                 <label class="campo">
                     <span>Modo de juego</span>
                     <select id="modoSelect">
-                        <option value="clasico">Clásico (vidas limitadas)</option>
+                        <option value="clasico">Clasico (vidas limitadas)</option>
                         <option value="contrarreloj">Contrarreloj (vence al tiempo)</option>
                         <option value="dos_jugadores">Dos jugadores (palabra oculta)</option>
+                        <option value="palabra_dia">Palabra del dia (una al dia)</option>
                     </select>
                 </label>
                 <label class="campo">
-                    <span>Categoría</span>
+                    <span>Categoria</span>
                     <select id="categoriaSelect">
-                        <option value="basico">Básico</option>
+                        <option value="basico">Basico</option>
                         <option value="avanzado">Avanzado</option>
-                        <option value="peliculas">Películas</option>
+                        <option value="peliculas">Peliculas</option>
                         <option value="animales">Animales</option>
                     </select>
                 </label>
                 <label class="campo">
                     <span>Dificultad</span>
                     <select id="dificultadSelect">
-                        <option value="facil">Fácil</option>
+                        <option value="facil">Facil</option>
                         <option value="normal">Normal</option>
-                        <option value="dificil">Difícil</option>
+                        <option value="dificil">Dificil</option>
                     </select>
                 </label>
                 <label class="campo" id="campoTiempo" hidden>
@@ -53,27 +55,28 @@
                 </label>
                 <label class="campo" id="campoPalabra" hidden>
                     <span>Palabra secreta (solo letras)</span>
-                    <input id="palabraInput" type="password" autocomplete="off" placeholder="Introducir palabra para el Jugador 2">
+                    <input id="palabraInput" type="password" autocomplete="off" placeholder="Solo la ve el Jugador 1">
                 </label>
             </div>
-            <p class="nota">Guardamos tu última categoría y dificultad en este dispositivo.</p>
+            <p class="nota" id="infoDiaria">Racha diaria: --</p>
         </section>
 
         <main class="tablero">
             <section class="panel panel-dibujo" role="img" aria-label="Estado del ahorcado">
-                <div class="horca">
-                    <div class="estructura base"></div>
-                    <div class="estructura poste"></div>
-                    <div class="estructura barra"></div>
-                    <div class="estructura soporte"></div>
-                    <div class="estructura soga"></div>
-
-                    <div class="parte parte-1"></div>
-                    <div class="parte parte-2"></div>
-                    <div class="parte parte-3"></div>
-                    <div class="parte parte-4"></div>
-                    <div class="parte parte-5"></div>
-                    <div class="parte parte-6"></div>
+                <div class="svg-wrapper" id="svgWrapper">
+                    <svg id="svgAhorcado" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <line class="svg-base" x1="20" y1="230" x2="180" y2="230" />
+                        <line class="svg-poste" x1="60" y1="230" x2="60" y2="30" />
+                        <line class="svg-barra" x1="60" y1="30" x2="140" y2="30" />
+                        <line class="svg-soporte" x1="90" y1="60" x2="60" y2="30" />
+                        <line class="svg-cuerda" x1="140" y1="30" x2="140" y2="60" />
+                        <circle id="parte-1" class="svg-parte" cx="140" cy="78" r="16" />
+                        <line id="parte-2" class="svg-parte" x1="140" y1="94" x2="140" y2="140" />
+                        <line id="parte-3" class="svg-parte" x1="140" y1="110" x2="120" y2="130" />
+                        <line id="parte-4" class="svg-parte" x1="140" y1="110" x2="160" y2="130" />
+                        <line id="parte-5" class="svg-parte" x1="140" y1="140" x2="120" y2="170" />
+                        <line id="parte-6" class="svg-parte" x1="140" y1="140" x2="160" y2="170" />
+                    </svg>
                 </div>
                 <div class="indicadores">
                     <div class="indicador">
@@ -108,7 +111,7 @@
 
         <section class="panel panel-teclado">
             <div class="panel-cabecera">
-                <p>Teclado virtual (también puedes usar tu teclado físico).</p>
+                <p>Teclado virtual (tambien puedes usar el teclado fisico).</p>
                 <div class="estado" id="estadoPartida">En curso</div>
             </div>
             <div id="teclado" class="teclado" aria-label="Teclado virtual"></div>
@@ -116,7 +119,7 @@
 
         <section class="panel panel-estadisticas">
             <div class="panel-cabecera">
-                <h2>Estadísticas</h2>
+                <h2>Estadisticas</h2>
                 <p class="nota">Se guardan en localStorage.</p>
             </div>
             <div class="estadisticas-grid">
@@ -124,8 +127,34 @@
                 <div class="stat"><p class="stat-label">Victorias</p><p id="statVictorias" class="stat-value">0</p></div>
                 <div class="stat"><p class="stat-label">Derrotas</p><p id="statDerrotas" class="stat-value">0</p></div>
                 <div class="stat"><p class="stat-label">Mejor tiempo (contrarreloj)</p><p id="statMejorTiempo" class="stat-value">--</p></div>
+                <div class="stat"><p class="stat-label">Mejor racha diaria</p><p id="statMejorRacha" class="stat-value">0</p></div>
             </div>
             <div class="estadisticas-modos" id="statModos"></div>
+        </section>
+
+        <section class="panel panel-logros">
+            <div class="panel-cabecera">
+                <h2>Logros</h2>
+                <p class="nota">Completa hitos y desbloquea insignias.</p>
+            </div>
+            <div id="listaLogros" class="logros-grid"></div>
+        </section>
+
+        <section class="panel panel-historial">
+            <div class="panel-cabecera">
+                <h2>Historial</h2>
+                <p class="nota">Ultimas partidas guardadas en este dispositivo.</p>
+            </div>
+            <div class="tabla-scroll">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th><th>Modo</th><th>Cat.</th><th>Dif.</th><th>Resultado</th><th>Tiempo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialCuerpo"></tbody>
+                </table>
+            </div>
         </section>
 
         <div class="sr-only" id="ariaEstado" aria-live="polite"></div>

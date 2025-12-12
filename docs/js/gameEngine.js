@@ -1,10 +1,10 @@
-﻿// Lógica central del juego del Ahorcado (módulo independiente del DOM)
-// Todos los textos que se muestran al usuario se gestionan en la capa de UI.
+﻿// Lógica central del juego del Ahorcado (sin DOM)
 
 export const MODOS = {
     CLASICO: "clasico",
     CONTRARRELOJ: "contrarreloj",
-    DOS_JUGADORES: "dos_jugadores"
+    DOS_JUGADORES: "dos_jugadores",
+    PALABRA_DIA: "palabra_dia"
 };
 
 export const DIFICULTADES = {
@@ -20,12 +20,12 @@ export const ESTADOS = {
 };
 
 const CONFIG_DIFICULTAD = {
-    [DIFICULTADES.FACIL]: { vidas: 8, penalizacionResolver: 1, tiempoContrarreloj: 90 },
-    [DIFICULTADES.NORMAL]: { vidas: 6, penalizacionResolver: 2, tiempoContrarreloj: 70 },
-    [DIFICULTADES.DIFICIL]: { vidas: 4, penalizacionResolver: 3, tiempoContrarreloj: 50, falloResolverDerrota: true }
+    [DIFICULTADES.FACIL]: { vidas: 8, penalizacionResolver: 1, tiempoContrarreloj: 120 },
+    [DIFICULTADES.NORMAL]: { vidas: 6, penalizacionResolver: 2, tiempoContrarreloj: 90 },
+    [DIFICULTADES.DIFICIL]: { vidas: 5, penalizacionResolver: 3, tiempoContrarreloj: 60, falloResolverDerrota: true }
 };
 
-const DICCIONARIO = {
+export const DICCIONARIO = {
     basico: [
         "JAVA", "CODIGO", "TECLADO", "RATON", "PANTALLA",
         "BUCLE", "CLASE", "OBJETO", "DATO", "RED"
@@ -87,10 +87,10 @@ function elegirPalabra(categoria, dificultad) {
 }
 
 export function nuevaPartida(config) {
-    const cfg = normalizarConfig(config);
-    let palabra = config.palabraPersonalizada
-        ? sanitizarPalabra(config.palabraPersonalizada)
-        : elegirPalabra(cfg.categoria, cfg.dificultad);
+    const cfg = normalizarConfig(config || {});
+    let palabra = config.palabraFija
+        ? sanitizarPalabra(config.palabraFija)
+        : (config.palabraPersonalizada ? sanitizarPalabra(config.palabraPersonalizada) : elegirPalabra(cfg.categoria, cfg.dificultad));
 
     if (!palabra) {
         palabra = elegirPalabra(cfg.categoria, cfg.dificultad);
@@ -111,7 +111,8 @@ export function nuevaPartida(config) {
         tiempoLimiteMs: cfg.modo === MODOS.CONTRARRELOJ ? cfg.tiempoContrarreloj * 1000 : 0,
         tiempoRestanteMs: cfg.modo === MODOS.CONTRARRELOJ ? cfg.tiempoContrarreloj * 1000 : 0,
         inicioMs: Date.now(),
-        pistasUsadas: 0
+        pistasUsadas: 0,
+        palabraDiaria: cfg.modo === MODOS.PALABRA_DIA
     };
 }
 
@@ -232,10 +233,33 @@ function comprobarVictoria(state) {
     }
 }
 
-export function estadoFinal(state) {
-    return state?.estado;
+export function crearResumen(state) {
+    if (!state) return null;
+    const victoria = state.estado === ESTADOS.VICTORIA;
+    const tiempoJugadoMs = state.tiempoLimiteMs ? state.tiempoLimiteMs - state.tiempoRestanteMs : Date.now() - state.inicioMs;
+    return {
+        victoria,
+        modo: state.modo,
+        dificultad: state.dificultad,
+        categoria: state.categoria,
+        palabra: state.palabraSecreta,
+        pistasUsadas: state.pistasUsadas,
+        vidasIniciales: state.vidasIniciales,
+        intentosRestantes: state.intentosRestantes,
+        tiempoLimiteMs: state.tiempoLimiteMs,
+        tiempoRestanteMs: state.tiempoRestanteMs,
+        tiempoJugadoMs,
+        fechaISO: new Date().toISOString(),
+        palabraDiaria: state.palabraDiaria
+    };
 }
 
-export function obtenerConfigDificultad() {
-    return CONFIG_DIFICULTAD;
+export function partesDisponibles(state) {
+    if (!state) return 0;
+    return Math.max(1, Math.min(6, state.vidasIniciales));
+}
+
+export function calcularErrores(state) {
+    if (!state) return 0;
+    return Math.max(0, state.vidasIniciales - state.intentosRestantes);
 }

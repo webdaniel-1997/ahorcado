@@ -1,57 +1,67 @@
 ﻿import { nuevaPartida, intentarLetra, usarPista, resolverPalabra, actualizarTiempo, ESTADOS } from "../js/gameEngine.js";
+import { registrarResultado } from "../js/storage.js";
 
 const resultados = [];
 
-function assert(condicion, mensaje) {
-    if (!condicion) throw new Error(mensaje);
-}
+function assert(cond, msg) { if (!cond) throw new Error(msg); }
 
 function testVictoriaPorLetras() {
     const juego = nuevaPartida({ categoria: "basico", dificultad: "facil", modo: "clasico", palabraPersonalizada: "CODE" });
-    intentarLetra(juego, "C");
-    intentarLetra(juego, "O");
-    intentarLetra(juego, "D");
-    intentarLetra(juego, "E");
-    assert(juego.estado === ESTADOS.VICTORIA, "Debería ser victoria al adivinar todas las letras");
+    "CODE".split("").forEach(l => intentarLetra(juego, l));
+    assert(juego.estado === ESTADOS.VICTORIA, "Debe ganar al descubrir todas las letras");
 }
 
 function testDerrotaPorVidas() {
-    const juego = nuevaPartida({ categoria: "basico", dificultad: "facil", modo: "clasico", palabraPersonalizada: "AAA", tiempoPersonalizado: 0 });
-    intentarLetra(juego, "B");
-    intentarLetra(juego, "C");
-    intentarLetra(juego, "D");
-    intentarLetra(juego, "E");
-    intentarLetra(juego, "F");
-    intentarLetra(juego, "G");
-    intentarLetra(juego, "H");
-    intentarLetra(juego, "I");
-    assert(juego.estado === ESTADOS.DERROTA, "Debe perder al gastar todas las vidas");
+    const juego = nuevaPartida({ categoria: "basico", dificultad: "dificil", modo: "clasico", palabraPersonalizada: "AA" });
+    "BCDEFGHIJK".split("").forEach(l => intentarLetra(juego, l));
+    assert(juego.estado === ESTADOS.DERROTA, "Debe perder al gastar vidas");
 }
 
 function testPistaRestaVida() {
     const juego = nuevaPartida({ categoria: "basico", dificultad: "normal", modo: "clasico", palabraPersonalizada: "SOL" });
-    const vidasAntes = juego.intentosRestantes;
+    const antes = juego.intentosRestantes;
     usarPista(juego);
-    assert(juego.intentosRestantes === vidasAntes - 1, "La pista debe restar una vida");
+    assert(juego.intentosRestantes === antes - 1, "La pista quita una vida");
 }
 
 function testResolverCorrecto() {
     const juego = nuevaPartida({ categoria: "basico", dificultad: "normal", modo: "clasico", palabraPersonalizada: "NUBE" });
     resolverPalabra(juego, "nube");
-    assert(juego.estado === ESTADOS.VICTORIA, "Resolver con la palabra correcta debe ganar");
+    assert(juego.estado === ESTADOS.VICTORIA, "Resolver bien gana");
 }
 
 function testResolverIncorrectoPenaliza() {
     const juego = nuevaPartida({ categoria: "basico", dificultad: "normal", modo: "clasico", palabraPersonalizada: "CIELO" });
-    const vidasAntes = juego.intentosRestantes;
-    resolverPalabra(juego, "TIERRA");
-    assert(juego.intentosRestantes < vidasAntes, "Resolver mal debe quitar vidas");
+    const antes = juego.intentosRestantes;
+    resolverPalabra(juego, "tierra");
+    assert(juego.intentosRestantes < antes, "Resolver mal resta vidas");
 }
 
 function testContrarrelojAgota() {
     const juego = nuevaPartida({ categoria: "basico", dificultad: "normal", modo: "contrarreloj", tiempoPersonalizado: 2 });
     actualizarTiempo(juego, juego.inicioMs + 3000);
-    assert(juego.estado === ESTADOS.DERROTA, "Debe perderse al agotar tiempo en contrarreloj");
+    assert(juego.estado === ESTADOS.DERROTA, "Debe perder por tiempo");
+}
+
+function testRegistrarResultado() {
+    const juego = nuevaPartida({ categoria: "basico", dificultad: "facil", modo: "clasico", palabraPersonalizada: "CODE" });
+    "CODE".split("").forEach(l => intentarLetra(juego, l));
+    const resumen = {
+        victoria: true,
+        modo: "clasico",
+        dificultad: "facil",
+        categoria: "basico",
+        palabra: "CODE",
+        pistasUsadas: 0,
+        vidasIniciales: juego.vidasIniciales,
+        intentosRestantes: juego.intentosRestantes,
+        tiempoJugadoMs: 1000,
+        tiempoRestanteMs: 0,
+        fechaISO: new Date().toISOString(),
+        palabraDiaria: false
+    };
+    const stats = registrarResultado(undefined, resumen, null);
+    assert(stats.partidas === 1 && stats.victorias === 1, "Debe registrar partidas y victorias");
 }
 
 const pruebas = [
@@ -60,7 +70,8 @@ const pruebas = [
     ["Pista resta vida", testPistaRestaVida],
     ["Resolver correcto", testResolverCorrecto],
     ["Resolver incorrecto penaliza", testResolverIncorrectoPenaliza],
-    ["Contrarreloj se agota", testContrarrelojAgota]
+    ["Contrarreloj se agota", testContrarrelojAgota],
+    ["Registrar resultado", testRegistrarResultado]
 ];
 
 export function runAllTests() {

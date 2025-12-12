@@ -12,10 +12,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "18"
-      - name: Comprobar carga de módulos
+      - name: Comprobar carga de modulos
         run: |
           node -e "import('file://' + process.cwd() + '/docs/js/gameEngine.js').then(()=>console.log('gameEngine OK')).catch(err=>{console.error(err);process.exit(1);})"
           node -e "import('file://' + process.cwd() + '/docs/js/storage.js').then(()=>console.log('storage OK')).catch(err=>{console.error(err);process.exit(1);})"
-      - name: Ejecutar tests de lógica
+      - name: Ejecutar tests de logica
         run: |
           node -e "import('file://' + process.cwd() + '/docs/tests/tests.js').then(mod=>{if(mod.runAllTests){mod.runAllTests();}else{console.log('runAllTests no encontrado');}}).catch(err=>{console.error(err);process.exit(1);})"

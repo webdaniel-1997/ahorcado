@@ -1,56 +1,57 @@
-﻿# Juego del Ahorcado – Consola (Java) y Versión Web
+﻿# Juego del Ahorcado – Consola (Java) y Version Web Avanzada
 
-Este proyecto incluye la versión de consola en Java y una versión web moderna (lista para GitHub Pages) con varios modos de juego, estadísticas persistentes y pruebas básicas de la lógica.
+Proyecto con dos caras: la version de consola en Java (sin cambios) y una version web moderna lista para GitHub Pages con modos avanzados, logros, palabra del dia, historial y tema claro/oscuro.
 
 ## Estructura
-- `src/ahorcado/`: código Java de la versión consola (sin cambios).
-- `docs/`: versión web para GitHub Pages (HTML/CSS/JS en módulos ES).
-  - `js/gameEngine.js`: lógica del juego (vidas, pistas, resolver, tiempo).
-  - `js/ui.js`: renderizado y manejo del DOM.
-  - `js/storage.js`: persistencia en `localStorage` (ajustes y estadísticas).
-  - `js/main.js`: punto de entrada que conecta lógica, UI y almacenamiento.
-  - `tests/`: tests sencillos de la lógica (`tests.js`, `index.html`).
-  - `package.json` (solo para marcar ESM dentro de `docs/`).
-- `.github/workflows/tests.yml`: flujo de GitHub Actions que carga los módulos y ejecuta los tests de lógica.
+- `src/ahorcado/`: codigo Java de la version consola.
+- `docs/`: raiz de la version web (GitHub Pages).
+  - `index.html`: pagina principal.
+  - `css/styles.css`: estilos con tema claro/oscuro y responsive.
+  - `js/`: modulos ES sin bundler.
+    - `gameEngine.js`: logica pura (vidas, modos, pistas, resolver, resumen de partida).
+    - `ui.js`: renderizado (SVG, teclado, barras, logros, historial, tema).
+    - `storage.js`: ajustes, estadisticas, historial, logros, racha diaria en `localStorage`.
+    - `achievements.js`: definicion y evaluacion de logros.
+    - `dailyWord.js`: palabra del dia y racha diaria.
+    - `main.js`: punto de entrada que conecta todo.
+  - `tests/`: tests sencillos de la logica (`index.html`, `tests.js`).
+  - `package.json`: marca ESM en `docs/` para Node.
+- `.github/workflows/tests.yml`: flujo basico que importa modulos y lanza los tests de logica.
 
-## Versión consola (Java)
-1. Abre una terminal en la carpeta del proyecto.
-2. Compila: `cd src` y `javac ahorcado\*.java`
+## Version consola (Java)
+1. En terminal: `cd src`
+2. Compila: `javac ahorcado\*.java`
 3. Ejecuta: `java ahorcado.Main`
-4. Sigue el menú para modo aleatorio o dos jugadores en consola.
 
-## Versión web (GitHub Pages)
-- Archivos en `docs/` (abre `docs/index.html` en el navegador o configura Pages en GitHub: Settings → Pages → branch `main` → carpeta `/docs`).
-- Modos de juego:
-  - **Clásico**: vidas limitadas, sin tiempo.
-  - **Contrarreloj**: dispones de un tiempo total según dificultad (personalizable); si se agota, pierdes.
-  - **Dos jugadores**: Jugador 1 introduce la palabra secreta, Jugador 2 adivina con el teclado virtual.
-- Dificultad y categorías:
-  - Dificultades: Fácil, Normal, Difícil (cambian vidas, penalización al resolver y tiempo en contrarreloj).
-  - Categorías: Básico, Avanzado, Películas, Animales (se recuerda la última elección en este dispositivo).
-- Controles principales:
-  - Teclado virtual y soporte de teclado físico.
-  - Botón **Pista** (-1 vida, revela una letra pendiente).
-  - **Resolver palabra**: si fallas, se penaliza (más en difícil). En contrarreloj el tiempo sigue corriendo.
-  - Barra de vidas y, en contrarreloj, barra/contador de tiempo.
-- Accesibilidad: foco visible en teclas, `aria-live` para mensajes de estado, textos en español.
+## Version web avanzada
+- Abre `docs/index.html` en el navegador o visita GitHub Pages: `https://webdaniel-1997.github.io/ahorcado/` (rama `main`, carpeta `/docs`).
+- Modos disponibles:
+  - **Clasico**: vidas limitadas, sin tiempo.
+  - **Contrarreloj**: tiempo total por dificultad (ajustable). Si llega a cero, derrota.
+  - **Dos jugadores**: Jugador 1 escribe la palabra secreta; Jugador 2 adivina.
+  - **Palabra del dia**: misma palabra para todos en el dia; mantiene racha diaria.
+- Dificultades: Facil, Normal, Dificil (vidas, penalizacion al resolver y tiempo en contrarreloj cambian segun dificultad).
+- Controles y UI:
+  - Teclado virtual + teclado fisico.
+  - Boton **Pista** (-1 vida, revela letra pendiente).
+  - **Resolver palabra** con penalizacion (o derrota directa en dificil).
+  - Barras de vidas y tiempo, animaciones en el SVG del ahorcado, tema claro/oscuro con selector.
+- Estadisticas y metajuego:
+  - Partidas, victorias/derrotas por modo, mejor tiempo en contrarreloj.
+  - Racha diaria y mejor racha.
+  - Historial de las ultimas partidas (fecha, modo, categoria, dificultad, resultado, tiempo).
+  - Logros: primera victoria, perfecto, dificil sin pistas, tres victorias seguidas, velocista, racha diaria, maraton, etc.
+  - Boton para reiniciar estadisticas y logros (solo afecta a este dispositivo).
 
-## Estadísticas y ajustes
-- Se guardan en `localStorage` (dispositivo local): partidas, victorias/derrotas por modo, mejor tiempo en contrarreloj, última categoría/dificultad.
-- Botón **Reiniciar estadísticas** para borrarlas.
-- Se muestran en el panel “Estadísticas” dentro de la página.
+## Tests de la logica (web)
+- Abre `docs/tests/index.html` en el navegador para ver el resultado en pantalla.
+- O ejecuta en Node (sin dependencias):
+  - Desde la raiz: `node -e "import('file://' + process.cwd() + '/docs/tests/tests.js').then(m=>m.runAllTests())"`
 
-## Tests de la lógica (web)
-- Abre `docs/tests/index.html` en el navegador para ejecutar los tests y ver el resultado.
-- Los tests usan solo la lógica (`gameEngine.js`) y también se ejecutan en el workflow de GitHub Actions.
-
-## Despliegue en GitHub Pages
-1. El repositorio ya está preparado con `docs/` como raíz web.
+## GitHub Pages
+1. Repo listo con `docs/` como raiz web.
 2. En GitHub: Settings → Pages → Source: rama `main`, carpeta `/docs`.
-3. Guarda y espera a que GitHub genere la URL pública.
+3. Guarda y espera la URL publica.
 
-## Créditos / Tecnologías
-- **Java (consola)** para la versión original.
-- **HTML5, CSS3 (flex/grid), JavaScript ES Modules** para la versión web.
-- **LocalStorage** para preferencias y estadísticas.
-- **GitHub Actions** para tests ligeros de la lógica.
+## Tecnologias
+- Java (consola), HTML5, CSS3 (flex/grid, temas), JavaScript ES Modules sin bundler, `localStorage` para estado local, GitHub Actions para tests ligeros.
