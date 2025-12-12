@@ -3,6 +3,7 @@
 out/
 bin/
 target/
+docs/node_modules/
 
 # IDEs
 .idea/

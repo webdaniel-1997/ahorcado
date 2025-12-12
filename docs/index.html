@@ -7,25 +7,60 @@
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
-    <div class="page">
-        <header class="hero">
-            <div class="titles">
-                <p class="eyebrow">Version web inspirada en la consola</p>
+    <div class="app">
+        <header class="header">
+            <div class="branding">
+                <p class="eyebrow">Versión web inspirada en la consola Java</p>
                 <h1>Juego del Ahorcado</h1>
-                <p class="lead">Adivina la palabra antes de quedarte sin vidas.</p>
+                <p class="subtitle">Modos clásico, contrarreloj y dos jugadores. Escoge tu categoría y dificultad.</p>
             </div>
-            <div class="control-group">
-                <label for="nivelSelect">Dificultad</label>
-                <select id="nivelSelect">
-                    <option value="basico">Basico (nivel 1)</option>
-                    <option value="avanzado">Avanzado (nivel 2)</option>
-                </select>
-                <button id="nuevoBtn" class="btn primario">Nueva partida</button>
+            <div class="header-actions">
+                <button id="btnNueva" class="btn primario">Nueva partida</button>
+                <button id="btnResetStats" class="btn fantasma">Reiniciar estadísticas</button>
             </div>
         </header>
 
+        <section class="config-panel panel">
+            <div class="config-grid">
+                <label class="campo">
+                    <span>Modo de juego</span>
+                    <select id="modoSelect">
+                        <option value="clasico">Clásico (vidas limitadas)</option>
+                        <option value="contrarreloj">Contrarreloj (vence al tiempo)</option>
+                        <option value="dos_jugadores">Dos jugadores (palabra oculta)</option>
+                    </select>
+                </label>
+                <label class="campo">
+                    <span>Categoría</span>
+                    <select id="categoriaSelect">
+                        <option value="basico">Básico</option>
+                        <option value="avanzado">Avanzado</option>
+                        <option value="peliculas">Películas</option>
+                        <option value="animales">Animales</option>
+                    </select>
+                </label>
+                <label class="campo">
+                    <span>Dificultad</span>
+                    <select id="dificultadSelect">
+                        <option value="facil">Fácil</option>
+                        <option value="normal">Normal</option>
+                        <option value="dificil">Difícil</option>
+                    </select>
+                </label>
+                <label class="campo" id="campoTiempo" hidden>
+                    <span>Tiempo (segundos)</span>
+                    <input id="tiempoInput" type="number" min="20" max="240" step="5" value="70">
+                </label>
+                <label class="campo" id="campoPalabra" hidden>
+                    <span>Palabra secreta (solo letras)</span>
+                    <input id="palabraInput" type="password" autocomplete="off" placeholder="Introducir palabra para el Jugador 2">
+                </label>
+            </div>
+            <p class="nota">Guardamos tu última categoría y dificultad en este dispositivo.</p>
+        </section>
+
         <main class="tablero">
-            <section class="panel panel-dibujo">
+            <section class="panel panel-dibujo" role="img" aria-label="Estado del ahorcado">
                 <div class="horca">
                     <div class="estructura base"></div>
                     <div class="estructura poste"></div>
@@ -40,31 +75,62 @@
                     <div class="parte parte-5"></div>
                     <div class="parte parte-6"></div>
                 </div>
-                <div class="resumen">
-                    <div class="dato">Vidas restantes: <span id="intentosRestantes">6</span></div>
-                    <div class="dato">Fallos: <span id="letrasFalladas">-</span></div>
+                <div class="indicadores">
+                    <div class="indicador">
+                        <div class="indicador-encabezado">
+                            <span>Vidas</span>
+                            <span id="vidasTexto">0/0</span>
+                        </div>
+                        <div class="barra barra-vidas"><div id="barraVidas" class="relleno"></div></div>
+                    </div>
+                    <div class="indicador" id="bloqueTiempo">
+                        <div class="indicador-encabezado">
+                            <span>Tiempo</span>
+                            <span id="tiempoTexto">--</span>
+                        </div>
+                        <div class="barra barra-tiempo"><div id="barraTiempo" class="relleno"></div></div>
+                    </div>
                 </div>
             </section>
 
             <section class="panel panel-palabra">
                 <div id="palabraOculta" class="palabra-oculta">_ _ _ _</div>
-                <div id="mensajeFinal" class="mensaje"></div>
+                <div id="mensajePrincipal" class="mensaje" aria-live="polite"></div>
                 <div class="acciones">
-                    <button id="pistaBtn" class="btn secundario">Pedir pista (-1 vida)</button>
+                    <button id="btnPista" class="btn secundario">Pista (-1 vida)</button>
                     <div class="resolver">
                         <input id="resolverInput" type="text" autocomplete="off" placeholder="Resolver palabra completa">
-                        <button id="resolverBtn" class="btn">Resolver</button>
+                        <button id="btnResolver" class="btn">Resolver</button>
                     </div>
                 </div>
             </section>
         </main>
 
         <section class="panel panel-teclado">
-            <p class="panel-subtitulo">Pulsa sobre las letras o usa tu teclado.</p>
-            <div id="teclado" class="teclado"></div>
+            <div class="panel-cabecera">
+                <p>Teclado virtual (también puedes usar tu teclado físico).</p>
+                <div class="estado" id="estadoPartida">En curso</div>
+            </div>
+            <div id="teclado" class="teclado" aria-label="Teclado virtual"></div>
         </section>
+
+        <section class="panel panel-estadisticas">
+            <div class="panel-cabecera">
+                <h2>Estadísticas</h2>
+                <p class="nota">Se guardan en localStorage.</p>
+            </div>
+            <div class="estadisticas-grid">
+                <div class="stat"><p class="stat-label">Partidas</p><p id="statPartidas" class="stat-value">0</p></div>
+                <div class="stat"><p class="stat-label">Victorias</p><p id="statVictorias" class="stat-value">0</p></div>
+                <div class="stat"><p class="stat-label">Derrotas</p><p id="statDerrotas" class="stat-value">0</p></div>
+                <div class="stat"><p class="stat-label">Mejor tiempo (contrarreloj)</p><p id="statMejorTiempo" class="stat-value">--</p></div>
+            </div>
+            <div class="estadisticas-modos" id="statModos"></div>
+        </section>
+
+        <div class="sr-only" id="ariaEstado" aria-live="polite"></div>
     </div>
 
-    <script src="./js/script.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>

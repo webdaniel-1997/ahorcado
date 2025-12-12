@@ -1,33 +1,56 @@
-﻿# Juego del Ahorcado - Consola (Java) y Version Web
+﻿# Juego del Ahorcado – Consola (Java) y Versión Web
 
-Proyecto con dos formas de jugar: la version de consola escrita en Java y una version web lista para publicar con GitHub Pages.
-
-## Descripcion
-Adivina la palabra secreta antes de quedarte sin vidas. Las palabras proceden del mismo diccionario usado en la practica Java, con un nivel basico y otro avanzado.
+Este proyecto incluye la versión de consola en Java y una versión web moderna (lista para GitHub Pages) con varios modos de juego, estadísticas persistentes y pruebas básicas de la lógica.
 
 ## Estructura
-- src/ahorcado/ : codigo fuente Java de la version consola
-- docs/index.html : pagina principal de la version web
-- docs/css/styles.css : estilos del juego web
-- docs/js/script.js : logica del juego web
-- README.md
-- .gitignore
+- `src/ahorcado/`: código Java de la versión consola (sin cambios).
+- `docs/`: versión web para GitHub Pages (HTML/CSS/JS en módulos ES).
+  - `js/gameEngine.js`: lógica del juego (vidas, pistas, resolver, tiempo).
+  - `js/ui.js`: renderizado y manejo del DOM.
+  - `js/storage.js`: persistencia en `localStorage` (ajustes y estadísticas).
+  - `js/main.js`: punto de entrada que conecta lógica, UI y almacenamiento.
+  - `tests/`: tests sencillos de la lógica (`tests.js`, `index.html`).
+  - `package.json` (solo para marcar ESM dentro de `docs/`).
+- `.github/workflows/tests.yml`: flujo de GitHub Actions que carga los módulos y ejecuta los tests de lógica.
 
-## Version consola (Java)
+## Versión consola (Java)
 1. Abre una terminal en la carpeta del proyecto.
 2. Compila: `cd src` y `javac ahorcado\*.java`
 3. Ejecuta: `java ahorcado.Main`
-4. Sigue las instrucciones en la consola para elegir dificultad o jugar en modo dos jugadores.
+4. Sigue el menú para modo aleatorio o dos jugadores en consola.
 
-## Version web (GitHub Pages)
-- Los archivos estan en `docs/`.
-- Puedes abrir `docs/index.html` directamente en el navegador para jugar sin instalar nada.
-- Para publicar en GitHub Pages:
-  1. Sube este repositorio a GitHub.
-  2. En el repositorio, entra en Settings > Pages.
-  3. En Source, selecciona la rama `main` y la carpeta `/docs`.
-  4. Guarda los cambios y espera a que GitHub genere la URL publica.
+## Versión web (GitHub Pages)
+- Archivos en `docs/` (abre `docs/index.html` en el navegador o configura Pages en GitHub: Settings → Pages → branch `main` → carpeta `/docs`).
+- Modos de juego:
+  - **Clásico**: vidas limitadas, sin tiempo.
+  - **Contrarreloj**: dispones de un tiempo total según dificultad (personalizable); si se agota, pierdes.
+  - **Dos jugadores**: Jugador 1 introduce la palabra secreta, Jugador 2 adivina con el teclado virtual.
+- Dificultad y categorías:
+  - Dificultades: Fácil, Normal, Difícil (cambian vidas, penalización al resolver y tiempo en contrarreloj).
+  - Categorías: Básico, Avanzado, Películas, Animales (se recuerda la última elección en este dispositivo).
+- Controles principales:
+  - Teclado virtual y soporte de teclado físico.
+  - Botón **Pista** (-1 vida, revela una letra pendiente).
+  - **Resolver palabra**: si fallas, se penaliza (más en difícil). En contrarreloj el tiempo sigue corriendo.
+  - Barra de vidas y, en contrarreloj, barra/contador de tiempo.
+- Accesibilidad: foco visible en teclas, `aria-live` para mensajes de estado, textos en español.
 
-## Notas
-- La version web usa 6 vidas, igual que la version de consola.
-- Las palabras de cada nivel son las mismas que en `DiccionarioSencillo.java`.
+## Estadísticas y ajustes
+- Se guardan en `localStorage` (dispositivo local): partidas, victorias/derrotas por modo, mejor tiempo en contrarreloj, última categoría/dificultad.
+- Botón **Reiniciar estadísticas** para borrarlas.
+- Se muestran en el panel “Estadísticas” dentro de la página.
+
+## Tests de la lógica (web)
+- Abre `docs/tests/index.html` en el navegador para ejecutar los tests y ver el resultado.
+- Los tests usan solo la lógica (`gameEngine.js`) y también se ejecutan en el workflow de GitHub Actions.
+
+## Despliegue en GitHub Pages
+1. El repositorio ya está preparado con `docs/` como raíz web.
+2. En GitHub: Settings → Pages → Source: rama `main`, carpeta `/docs`.
+3. Guarda y espera a que GitHub genere la URL pública.
+
+## Créditos / Tecnologías
+- **Java (consola)** para la versión original.
+- **HTML5, CSS3 (flex/grid), JavaScript ES Modules** para la versión web.
+- **LocalStorage** para preferencias y estadísticas.
+- **GitHub Actions** para tests ligeros de la lógica.
