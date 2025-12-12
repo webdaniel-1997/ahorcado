@@ -10,14 +10,14 @@
     <div class="app">
         <header class="header">
             <div class="branding">
-                <p class="eyebrow">Version web avanzada inspirada en la consola Java</p>
+                <p class="eyebrow">Versión web avanzada inspirada en la consola Java</p>
                 <h1>Juego del Ahorcado</h1>
-                <p class="subtitle">Modos clasico, contrarreloj, dos jugadores y palabra del dia. Categorias y dificultades configurables.</p>
+                <p class="subtitle">Modos clásico, contrarreloj, dos jugadores y palabra del día. Categorías y dificultades configurables.</p>
             </div>
             <div class="header-actions">
                 <button id="btnTema" class="btn fantasma" aria-label="Cambiar tema">Tema: Oscuro</button>
                 <button id="btnNueva" class="btn primario">Nueva partida</button>
-                <button id="btnResetStats" class="btn fantasma">Reiniciar estadisticas y logros</button>
+                <button id="btnResetStats" class="btn fantasma">Reiniciar estadísticas y logros</button>
             </div>
         </header>
 
@@ -26,27 +26,27 @@
                 <label class="campo">
                     <span>Modo de juego</span>
                     <select id="modoSelect">
-                        <option value="clasico">Clasico (vidas limitadas)</option>
+                        <option value="clasico">Clásico (vidas limitadas)</option>
                         <option value="contrarreloj">Contrarreloj (vence al tiempo)</option>
                         <option value="dos_jugadores">Dos jugadores (palabra oculta)</option>
-                        <option value="palabra_dia">Palabra del dia (una al dia)</option>
+                        <option value="palabra_dia">Palabra del día (una al día)</option>
                     </select>
                 </label>
                 <label class="campo">
-                    <span>Categoria</span>
+                    <span>Categoría</span>
                     <select id="categoriaSelect">
-                        <option value="basico">Basico</option>
+                        <option value="basico">Básico</option>
                         <option value="avanzado">Avanzado</option>
-                        <option value="peliculas">Peliculas</option>
+                        <option value="peliculas">Películas</option>
                         <option value="animales">Animales</option>
                     </select>
                 </label>
                 <label class="campo">
                     <span>Dificultad</span>
                     <select id="dificultadSelect">
-                        <option value="facil">Facil</option>
+                        <option value="facil">Fácil</option>
                         <option value="normal">Normal</option>
-                        <option value="dificil">Dificil</option>
+                        <option value="dificil">Difícil</option>
                     </select>
                 </label>
                 <label class="campo" id="campoTiempo" hidden>
@@ -111,7 +111,7 @@
 
         <section class="panel panel-teclado">
             <div class="panel-cabecera">
-                <p>Teclado virtual (tambien puedes usar el teclado fisico).</p>
+                <p>Teclado virtual (también puedes usar el teclado físico).</p>
                 <div class="estado" id="estadoPartida">En curso</div>
             </div>
             <div id="teclado" class="teclado" aria-label="Teclado virtual"></div>
@@ -119,7 +119,7 @@
 
         <section class="panel panel-estadisticas">
             <div class="panel-cabecera">
-                <h2>Estadisticas</h2>
+                <h2>Estadísticas</h2>
                 <p class="nota">Se guardan en localStorage.</p>
             </div>
             <div class="estadisticas-grid">
@@ -143,7 +143,7 @@
         <section class="panel panel-historial">
             <div class="panel-cabecera">
                 <h2>Historial</h2>
-                <p class="nota">Ultimas partidas guardadas en este dispositivo.</p>
+                <p class="nota">Últimas partidas guardadas en este dispositivo.</p>
             </div>
             <div class="tabla-scroll">
                 <table class="tabla">
